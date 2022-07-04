@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "twitter"
+version = "0.1.0"
+description = ""
+authors = ["Anastasiia"]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+boto3 = "^1.24.16"
+twython = "^3.9.1"
+loguru = "^0.6.0"
+requests-aws4auth = "^1.1.2"
+elasticsearch = "7.9"
+unittest = "^0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
