@@ -1,49 +1,64 @@
-import json
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath('src'))
 
 from datetime import datetime
-from send_to_firehose import send_to_firehose
+
 from twython import TwythonStreamer
 
+from firehose_connect import send_to_firehose
+
+
+RETWEETED_STATUS = 'retweeted_status'
+EXTENDED_TWEET = 'extended_tweet'
+CREATED_AT = 'created_at'
+USER = 'user'
+USER_CREATED_AT = 'user_created_at'
+LOCATION = 'location'
+TEXT = 'text'
+USERNAME = 'username'
+FULL_TEXT = 'full_text'
+SCREEN_NAME = 'screen_name'
+
 def process_tweet(tweet):
-    """Extract message from tweet."""
-    # print('Tweet', tweet)
-    
+    """Extract message from tweet.""" 
     tweet_data = {}
 
-    date_time_str = tweet['created_at']
+    date_time_str = tweet[CREATED_AT]
     date_time_obj = datetime.strptime(date_time_str, '%a %b %d %H:%M:%S %z %Y')
     formatted_datetime = date_time_obj.isoformat()
 
-    user_created_at_str = tweet['user']['created_at']
+    user_created_at_str = tweet[USER][CREATED_AT]
     user_created_at_obj = datetime.strptime(user_created_at_str, '%a %b %d %H:%M:%S %z %Y')
     formatted_user_created_at = user_created_at_obj.isoformat()
 
 
-    if 'retweeted_status' in tweet:
-        if 'extended_tweet' in tweet['retweeted_status']:
-            tweet_data['text'] = tweet['retweeted_status']['extended_tweet']['full_text']
-            tweet_data['created_at'] = formatted_datetime
-            tweet_data['username'] = tweet['user']['screen_name']
-            tweet_data['location'] = tweet['user'].get('location')
-            tweet_data['user_created_at'] = formatted_user_created_at
+    if RETWEETED_STATUS in tweet:
+        if EXTENDED_TWEET in tweet[RETWEETED_STATUS]:
+            tweet_data[TEXT] = tweet[RETWEETED_STATUS][EXTENDED_TWEET][FULL_TEXT]
+            tweet_data[CREATED_AT] = formatted_datetime
+            tweet_data[USERNAME] = tweet[USER][SCREEN_NAME]
+            tweet_data[LOCATION] = tweet[USER].get(LOCATION)
+            tweet_data[USER_CREATED_AT] = formatted_user_created_at
         else:
-            tweet_data['text'] = tweet['retweeted_status']['text']
-            tweet_data['created_at'] = formatted_datetime
-            tweet_data['username'] = tweet['user']['screen_name']
-            tweet_data['location'] = tweet['user'].get('location')
-            tweet_data['user_created_at'] = formatted_user_created_at
-    elif 'extended_tweet' in tweet:
-        tweet_data['text'] = tweet['extended_tweet']['full_text']
-        tweet_data['created_at'] = formatted_datetime
-        tweet_data['username'] = tweet['user']['screen_name']
-        tweet_data['location'] = tweet['user'].get('location')
-        tweet_data['user_created_at'] = formatted_user_created_at
+            tweet_data[TEXT] = tweet[RETWEETED_STATUS][TEXT]
+            tweet_data[CREATED_AT] = formatted_datetime
+            tweet_data[USERNAME] = tweet[USER][SCREEN_NAME]
+            tweet_data[LOCATION] = tweet[USER].get(LOCATION)
+            tweet_data[USER_CREATED_AT] = formatted_user_created_at
+    elif EXTENDED_TWEET in tweet:
+        tweet_data[TEXT] = tweet[EXTENDED_TWEET][FULL_TEXT]
+        tweet_data[CREATED_AT] = formatted_datetime
+        tweet_data[USERNAME] = tweet[USER][SCREEN_NAME]
+        tweet_data[LOCATION] = tweet[USER].get(LOCATION)
+        tweet_data[USER_CREATED_AT] = formatted_user_created_at
     else:
-        tweet_data['text'] = tweet['text']
-        tweet_data['created_at'] = formatted_datetime
-        tweet_data['username'] = tweet['user']['screen_name']
-        tweet_data['location'] = tweet['user'].get('location')
-        tweet_data['user_created_at'] = formatted_user_created_at
+        tweet_data[TEXT] = tweet[TEXT]
+        tweet_data[CREATED_AT] = formatted_datetime
+        tweet_data[USERNAME] = tweet[USER][SCREEN_NAME]
+        tweet_data[LOCATION] = tweet[USER].get(LOCATION)
+        tweet_data[USER_CREATED_AT] = formatted_user_created_at
 
     return tweet_data
 

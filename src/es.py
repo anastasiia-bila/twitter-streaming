@@ -1,14 +1,15 @@
-import boto3
-import time
+import os
+import sys
 
+import boto3
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from loguru import logger
 from requests_aws4auth import AWS4Auth
-from utils.utils import fetch_parameter_from_ssm
+
+sys.path.insert(0, os.path.abspath('src'))
+
 from utils.utils import AWS_REGION
 
-
-# es_host = fetch_parameter_from_ssm("tweeter_es_host")
 
 def establish_connection_to_elasticsearch(host, timeout=60):
     """ Connec to ES by host."""
@@ -46,5 +47,3 @@ def delete_index(host, index):
     es.indices.delete(index=index, ignore=[400, 404])
     logger.info(f"Deleted index {index}")
     return True
-
-

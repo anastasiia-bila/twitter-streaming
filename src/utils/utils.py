@@ -1,7 +1,5 @@
 import boto3
-
 from loguru import logger
-
 
 AWS_REGION = "eu-west-2"
 
@@ -28,3 +26,4 @@ twitter_credentials = {
 }
 
 ES_ENDPOINT = fetch_parameter_from_ssm("ES_ENDPOINT")
+ES_INDEX = "tweets*"
