@@ -34,9 +34,6 @@ variable "instance_type" {
   default     = "t3.small.elasticsearch"
 }
 
-
-# Firehose
-
 variable "stream_name" {
   type        = string
   description = "Kinesis Firehose Stream Name"
@@ -55,11 +52,6 @@ variable "es_buffering_size" {
   default     = 1
 }
 
-variable "es_arn" {
-  type        = string
-  description = "Elasticsearch ARN"
-}
-
 variable "es_index_name" {
   type        = string
   description = "Elasticsearch index name"
@@ -70,9 +62,4 @@ variable "s3_backup_mode" {
   type        = string
   description = "S3 backup mode"
   default     = "FailedDocumentsOnly"
-}
-
-variable "s3_backup_arn" {
-  type        = string
-  description = "S3 for backup"
 }

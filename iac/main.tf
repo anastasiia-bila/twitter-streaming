@@ -30,23 +30,6 @@ terraform {
 }
 
 
-#############################################################
-# SHARED VPC
-#############################################################
-
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-
-  name = var.app_name
-  cidr = "172.30.0.0/16"
-
-  azs             = ["eu-west-2a", "eu-west-2b"]
-  private_subnets = ["172.30.0.0/24", "172.30.1.0/24"]
-  public_subnets  = ["172.30.2.0/24", "172.30.3.0/24"]
-
-}
-
-
 ###########################################################
 # BACKUP S3 BUCKET
 ###########################################################
@@ -57,21 +40,8 @@ resource "aws_s3_bucket" "data_bucket" {
 }
 
 
-# locals {
-#   cluster_name      = "opensearch"
-#   cluster_domain    = "coop"
-# }
-
-# data "aws_region" "current" {}
-
-# # provider "elasticsearch" {
-# #   url                   = module.opensearch.cluster_endpoint
-# #   aws_region            = data.aws_region.current.name
-# #   healthcheck           = false
-# # }
-
 # ########################################################
-# #Elasticsearch setup
+# ELASTICSEARCH SETUP
 # #########################################################
 
 resource "aws_elasticsearch_domain" "es" {
@@ -88,12 +58,6 @@ resource "aws_elasticsearch_domain" "es" {
     ebs_enabled = true
     volume_size = 10
   }
-
-#   vpc_options {
-#     subnet_ids = [tolist(data.vpc.subnet_ids.selected.ids)[0]]
-#     # security_group_ids = [aws_security_group.es.id]
-#   }
-
 
   cognito_options {
     enabled          = true
@@ -130,21 +94,26 @@ data "aws_iam_policy_document" "cognito_trust" {
   }
 }
 
+data "aws_caller_identity" "current" {}
 
-# resource "aws_elasticsearch_domain_policy" "es" {
-#   domain_name = aws_elasticsearch_domain.es.domain_name
-#   access_policies = data.aws_iam_policy_document.elasticsearch.json
-# }
-
-
-# # old version
 resource "aws_elasticsearch_domain_policy" "elasticsearch" {
   domain_name = aws_elasticsearch_domain.es.domain_name
   access_policies = <<POLICIES
 {
   "Version": "2012-10-17",
   "Statement": [
-    
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/twitter-user"
+          ]
+      },
+      "Action": [
+        "es:*"
+      ],
+      "Resource": "*"
+    },
     {
       "Effect": "Allow",
       "Principal": {
@@ -166,11 +135,9 @@ POLICIES
 }
 
 
-
 #####################################################
 # COGNITO USER POOL
 #####################################################
-
 
 resource "aws_cognito_user_pool" "twitter_user_pool" {
   name = var.app_name
@@ -188,36 +155,23 @@ resource "aws_cognito_user_pool" "twitter_user_pool" {
   }
 }
 
-resource "aws_cognito_user_pool_client" "twitter_user_pool_client" {
-  user_pool_id = aws_cognito_user_pool.twitter_user_pool.id
-  name         = "Twitter"
-}
-
-#set user pool domain
 resource "aws_cognito_user_pool_domain" "twitter_domain_user_pool" {
   domain = "${var.app_name}-domain"
   user_pool_id = aws_cognito_user_pool.twitter_user_pool.id
 }
 
 
-
 #####################################################
 # COGNITO IDENTITY POOL
 #####################################################
 
-
-#create identity pool
 resource "aws_cognito_identity_pool" "twitter_id_pool" {
   identity_pool_name               = replace(var.app_name, "-", " ")
   allow_unauthenticated_identities = false
 
-
-  cognito_identity_providers {
-    client_id               = "${aws_cognito_user_pool_client.twitter_user_pool_client.id}"
-    provider_name           = "cognito-idp.eu-west-2.amazonaws.com/${aws_cognito_user_pool.twitter_user_pool.id}"
-    server_side_token_check = false
+  lifecycle {
+    ignore_changes = all
   }
-
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "id_pool_roles" {
@@ -227,7 +181,6 @@ resource "aws_cognito_identity_pool_roles_attachment" "id_pool_roles" {
     "authenticated" = aws_iam_role.cognito_auth.arn
     "unauthenticated" = aws_iam_role.cognito_unauth.arn
   }
-
 }
 
 ##################################################################
