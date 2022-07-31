@@ -37,7 +37,7 @@ variable "instance_type" {
 variable "stream_name" {
   type        = string
   description = "Kinesis Firehose Stream Name"
-  default     = "PUT_Opensearch_2"
+  default     = "PUT_Opensearch"
 }
 
 variable "es_buffering_interval" {
@@ -55,7 +55,7 @@ variable "es_buffering_size" {
 variable "es_index_name" {
   type        = string
   description = "Elasticsearch index name"
-  default     = "tweets2"
+  default     = "tweets"
 }
 
 variable "s3_backup_mode" {

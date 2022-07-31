@@ -4,7 +4,7 @@ import json
 from utils.utils import AWS_REGION
 
 # STREAM_NAME = "PUT-OpenSearch"
-STREAM_NAME = "PUT_Opensearch_2"
+STREAM_NAME = "PUT_Opensearch"
 
 # STREAM_NAME = "PUT-OPS-2OHNo"
 
