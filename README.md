@@ -21,6 +21,9 @@ docker run --env-file=.env twitter:0.0.1
 
 where `.env` contains 3 rows with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION.
 
-### Upcoming
 
-Architecture diagram (visual presentation)
+### Architecture diagram
+
+
+
+![Blank diagram (2)](https://user-images.githubusercontent.com/28845768/182336499-6996e2d6-4d8a-44b6-bf0f-d741581aca66.png)
