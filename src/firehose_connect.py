@@ -8,10 +8,8 @@ sys.path.insert(0, os.path.abspath('src'))
 
 from utils.utils import AWS_REGION
 
-# STREAM_NAME = "PUT-OpenSearch"
-STREAM_NAME = "PUT_Opensearch"
-
-# STREAM_NAME = "PUT-OPS-2OHNo"
+# STREAM_NAME = "PUT_Opensearch"
+STREAM_NAME = "PUT-with-location"
 
 aws_kinesis_client = None
 

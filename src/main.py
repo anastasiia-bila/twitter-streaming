@@ -13,4 +13,4 @@ if __name__ == '__main__':
     logger.info("Starting to listen tweets")
     listen_tweets(twitter_credentials)
 
-    # delete_index(ES_INDEX, ES_ENDPOINT)
+    # delete_index(ES_ENDPOINT, ES_INDEX)
